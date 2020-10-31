@@ -3,7 +3,7 @@ from .solver import Sudoku_Solver
 class Sudoku_Solver_1(Sudoku_Solver):
 	def __init__(self):
 		super(Sudoku_Solver_1, self).__init__()
-		self._log = False
+		self._log = True
 
 	def start_posn_of_box(self, x):
 		return (x // 3) * 3 
@@ -58,6 +58,7 @@ class Sudoku_Solver_1(Sudoku_Solver):
 		col = next_posn % 9
 		
 		self.find_all(code, row, col)
-		for r in self._result:
-			self.pretty_print(r, silent) + "\n"
+		if not silent:
+			for r in self._result:
+				self.pretty_print(r) + "\n"
 		return self._result

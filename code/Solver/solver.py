@@ -13,7 +13,8 @@ class Sudoku_Solver(ABC):
 	def start_posn_of_box(self, x):
 		return (x // 3) * 3 
 
-	def pretty_print(self, code, silent=False):
+	@staticmethod
+	def pretty_print(code, silent=False):
 		out = ""
 		for r in range(9):
 			if r % 3 == 0 and r > 0:

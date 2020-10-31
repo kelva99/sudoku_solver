@@ -1,4 +1,5 @@
 import Solver, argparse
+
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='')
 	parser.add_argument('filename',help='filename that contains the sudoku code (without extension)')
