@@ -3,7 +3,7 @@ from .solver import Sudoku_Solver
 class Sudoku_Solver_1(Sudoku_Solver):
 	def __init__(self):
 		super(Sudoku_Solver_1, self).__init__()
-		self._log = True
+		self._log = False
 
 	def start_posn_of_box(self, x):
 		return (x // 3) * 3 

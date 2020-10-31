@@ -1,12 +1,19 @@
 # reference Creating a Sudoku Puzzle in https://www.sudokuwiki.org/Sudoku_Creation_and_Grading.pdf
 import random
-from Solver import Sudoku_Solver_1
+from validate import validate
+from Solver import Sudoku_Solver, Sudoku_Solver_1
+
+class Level(object):
+	EASY = 0
+	MIDDLE = 1
+	HARD = 3
+	EXPERT = 4
 
 class Generator(object):
+
 	def __init__(self):
 		self.lst_test = list(list(range(1, 10)))
 		self.len_lst = len(self.lst_test)
-		self.out = []
 
 	def index_of_not_filled(self, lst):
 		out = []
@@ -34,16 +41,19 @@ class Generator(object):
 		for r in g:
 			out += ''.join(list(map(str, r)))
 		if pretty_print:
-			Sudoku_Solver_1.pretty_print(out)
+			Sudoku_Solver.pretty_print(out)
 		return out
 
-	def remove_node(self):
+	def remove_node(self, g):
 		pass
 
 	# generate full valid board
-	def generate(self):
-		self.out = []
-		for attempt in range(5):
+	def generate(self, level, outfile=None):
+		out = []
+		self.level = level
+
+		# ten tries
+		for attempt in range(10):
 			g = []
 			# init grid
 			for i in range(self.len_lst):
@@ -64,31 +74,59 @@ class Generator(object):
 					fail = True
 					break
 			if not fail:
-				self.out.append(g)
+				out = g
 				break
 
-		if self.out == []:
+		if out == []:
+			print("Cannot generate base board")
 			return []
 
-		"""
-		gout = self.pretty_print_wrap(g) # False)
-		s = Sudoku_Solver_1()
-		result = s.solve(gout)
-		"""
-		# TODO
+		for c in range(3):
+			rand_order = random.sample(list(range(3)), 2)
+			rand_dest = random.sample(list(range(1, 3)), 2)
+			for r in range(2):
+				which_col = rand_order[r] + 3 * c
+				dest_row = rand_dest[r] * 3
+				out[dest_row][which_col] = out[0][which_col]
+				out[dest_row + 1][which_col] = out[1][which_col]
+				out[dest_row + 2][which_col] = out[2][which_col]
+				out[0][which_col] = 0
+				out[1][which_col] = 0
+				out[2][which_col] = 0
 
+		str_incomplete_board = self.pretty_print_wrap(out, pretty_print=False)
+		lst_baords = Sudoku_Solver_1().solve(str_incomplete_board, silent=True)
+		is_good_result = False
 
+		# randomly pop one
+		candidate_idx = random.randint(0, len(lst_baords) - 1)
+		candidate = lst_baords.pop(candidate_idx)
 
+		while (not is_good_result) and lst_baords != []:
+			invalid_board, err_posn = validate(lst_inputboard=lst_baords)
+			if invalid_board == "" and err_posn == []:
+				is_good_result = True
+				break
+			candidate_idx = random.randint(0, len(lst_baords))
+			candidate = lst_baords.pop(candidate_idx)
 
+		if not is_good_result:
+			print("Failed to fill the board")
+			return []
 
-		
-		
+		# a valid board is obtained by now
+		self.pretty_print_wrap(candidate)
+		if outfile != None:
+			f = open("../test/"+outfile + "_soln.txt",'w')
+			f.write(candidate)
+			f.close()
 
+		board_to_play = self.remove_node(candidate)
 
 
 if __name__ == '__main__':
 	g = Generator()
-	grid = g.generate()
+	grid = g.generate(Level.EASY)
 
 
 

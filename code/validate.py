@@ -21,18 +21,25 @@ def check_all_idx(s, value):
 			idx.append(i)
 	return idx
 
-def validate(filename):
-	with open("../test/" + args.filename + ".txt") as f:
-		vinput = None
-		try:
-			vinput = f.read()
-		except Exception as e:
-			print("Error reading " + args.filename)
+def validate(filename=None, lst_inputboard=None):
+	lst_all_inputs = None
+	if filename != None:
+		with open("../test/" + filename + ".txt") as f:
+			try:
+				lst_all_inputs = f.read()
+			except Exception as e:
+				print("Error reading " + filename)
+				f.close()
+				raise Exception(e)
+
 			f.close()
-			raise Exception(e)
+		lst_all_inputs.split("\n")
+	elif lst_inputboard != None:
+		lst_all_inputs = lst_inputboard
+	else:
+		raise Exception("Please provide either filename or inputboard")
 
-		f.close()
-
+	for vinput in lst_all_inputs:
 		err_posn = []
 		for i in range(9):
 			#ith row
@@ -42,7 +49,7 @@ def validate(filename):
 				err_posn = check_all_idx(s, result)
 				err_posn = list(map(lambda x: (i, x),err_posn))
 				print(s, result, err_posn)
-				return err_posn
+				return (vinput, err_posn)
 			
 			#ith column
 			s = vinput[i::9] 
@@ -51,7 +58,7 @@ def validate(filename):
 				err_posn = check_all_idx(s, result)
 				err_posn = list(map(lambda x: (x, i), err_posn))
 				print(s, result, err_posn)
-				return err_posn
+				return (vinput, err_posn)
 
 			# check box
 			whichrow = i//3 * 3
@@ -71,8 +78,8 @@ def validate(filename):
 				err_posn = check_all_idx(s, result)
 				err_posn = list(map(to_row_col, err_posn))
 				print(s, result, err_posn)
-				return err_posn
-	return []
+				return (vinput, err_posn)
+	return ("", [])
 
 
 
