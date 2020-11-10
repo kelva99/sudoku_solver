@@ -4,16 +4,23 @@ from validate import validate
 from Solver import Sudoku_Solver, Sudoku_Solver_1
 
 class Level(object):
-	EASY = 0
-	MIDDLE = 1
-	HARD = 3
-	EXPERT = 4
+	EASY = 0		# 35-40
+	MIDDLE = 1		# 30-36
+	HARD = 2 		# 25-33 
+	EXPERT = 3 		# 20-28
 
 class Generator(object):
 
 	def __init__(self):
 		self.lst_test = list(list(range(1, 10)))
 		self.len_lst = len(self.lst_test)
+
+		# data of popping numbers from complete board
+		self.NUM_TO_POP = [(41, 46),(45,51),(48,56),(53,61)] 
+
+		self.MAX_NUM_PER_LINE = [6, 5, 4, 3]
+
+
 
 	def index_of_not_filled(self, lst):
 		out = []
@@ -44,8 +51,61 @@ class Generator(object):
 			Sudoku_Solver.pretty_print(out)
 		return out
 
+
+
 	def remove_node(self, g):
-		pass
+		mini, maxi = self.NUM_TO_POP[self.level]
+		iteration = random.randint(mini, maxi)
+		print(iteration)
+
+		def count(r, c):
+			counter = 0
+			for i in range(9):
+				if g[r*9 + i] != '0':
+					counter += 1
+				if g[i*9 + c] != '0':
+					counter += 1
+			return counter
+
+		lst_all_pos = list(range(81))
+
+		for i in range(iteration):
+			whichbox = i%9
+			num = -1
+			if (i//9)* 9 + 9 >= iteration:
+				# make last few bits random
+				num = random.sample(lst_all_pos, 1)[0]
+
+			else:
+				min_pair = []
+				min_sum = -1
+				r0 = whichbox // 3 * 3
+				c0 =  whichbox % 3 * 3
+				for r in range(r0, r0 + 3):
+					for c in range(c0, c0 + 3):
+						if g[r*9+c]=='0':
+							continue
+						res = count(r, c)
+						if (res < min_sum):
+							continue
+						elif res == min_sum:
+							min_pair.append((r, c))
+						else: # res < min_sum
+							min_pair = [(r, c)]
+							min_sum = res
+
+				r, c = random.sample(min_pair, 1)[0]
+				num = r*9 + c
+
+			g = g[:num] + "0" + g[num+1:]
+			lst_all_pos.remove(num)
+
+		self.pretty_print_wrap(g)
+
+		
+
+
+
 
 	# generate full valid board
 	def generate(self, level, outfile=None):
@@ -115,18 +175,23 @@ class Generator(object):
 			return []
 
 		# a valid board is obtained by now
-		self.pretty_print_wrap(candidate)
+		# self.pretty_print_wrap(candidate)
+		board_to_play = self.remove_node(candidate)
 		if outfile != None:
 			f = open("../test/"+outfile + "_soln.txt",'w')
 			f.write(candidate)
 			f.close()
 
-		board_to_play = self.remove_node(candidate)
+			f = open("../test/"+outfile + ".txt",'w')
+			f.write(board_to_play)
+			f.close()
+
+		return board_to_play
 
 
 if __name__ == '__main__':
 	g = Generator()
-	grid = g.generate(Level.EASY)
+	grid = g.generate(Level.EXPERT)
 
 
 

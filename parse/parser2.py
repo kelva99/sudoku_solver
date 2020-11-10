@@ -16,7 +16,7 @@ if __name__ == '__main__':
 			continue
 		output = f.read()
 		f.close()
-		removable = ['|', '-', ' ']
+		removable = ['|', '-', ' ', '+']
 		output = ''.join(c for c in output if (c.isprintable() and not(c in removable)))
 		output = re.sub('\.', '0', output)
 
